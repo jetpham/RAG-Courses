@@ -1,0 +1,37 @@
+name: Go Grade
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+
+  grade:
+    name: Autograder
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+      
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.23.x
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Run Docker Compose
+      run: docker compose up -d
+      
+    - name: Test
+      env: # Or as an environment variable
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      id: test
+      uses: cs272-0304-f23/action-go-grade@v0.3.4
+      if: always()
+      with:
+        rubricUrl: 'https://raw.githubusercontent.com/cs272-f24/lab07-jetpham/refs/heads/dev/.github/workflows/lab07.json'
