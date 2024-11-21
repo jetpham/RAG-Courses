@@ -1,4 +1,4 @@
-# Lab 06 - CS272
+# Project 6 - CS272
 
 ## Start the database:
     ```sh
