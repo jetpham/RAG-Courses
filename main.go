@@ -36,8 +36,8 @@ func main() {
 	for _, question := range exampleQuestions {
 		fmt.Println("-", question)
 	}
+	reader := bufio.NewReader(os.Stdin)
 	for {
-		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter prompt: ")
 		prompt, _ := reader.ReadString('\n')
 		prompt = strings.TrimSpace(prompt)

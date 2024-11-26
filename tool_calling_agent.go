@@ -38,6 +38,22 @@ func toolCallingAgent(setup Setup, prompt string) string {
 					}),
 				}),
 			},
+			{
+				Type: openai.F(openai.ChatCompletionToolTypeFunction),
+				Function: openai.F(openai.FunctionDefinitionParam{
+					Name:        openai.String("get_rate_my_professor_data"),
+					Description: openai.String("get professor information from Rate My Professor"),
+					Parameters: openai.F(openai.FunctionParameters{
+						"type": "object",
+						"properties": map[string]interface{}{
+							"name": map[string]string{
+								"type": "string",
+							},
+						},
+						"required": []string{"name"},
+					}),
+				}),
+			},
 		}),
 		Model: openai.F(openai.ChatModelGPT4oMini),
 	}
@@ -81,7 +97,23 @@ func toolCallingAgent(setup Setup, prompt string) string {
 			}
 			coursesJSON, _ := json.Marshal(courses)
 			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(toolCall.ID, string(coursesJSON)))
-		}
+		} else if toolCall.Function.Name == "get_rate_my_professor_data" {
+			var args map[string]interface{}
+			if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
+				log.Printf("Error unmarshalling arguments: %v", err)
+				continue
+			}
+			name := args["name"].(string)
+
+			log.Printf("%v(\"%s\")", toolCalls[0].Function.Name, name)
+
+			professorInfo, err := getRateMyProfessorData(name)
+			if err != nil {
+				log.Printf("Error getting professor info: %v", err)
+				continue
+			}
+			professorInfoJSON, _ := json.Marshal(professorInfo)
+			params.Messages.Value = append(params.Messages.Value, openai.ToolMessage(toolCall.ID, string(professorInfoJSON)))
 	}
 
 	params.Messages.Value = append(params.Messages.Value, openai.SystemMessage(`

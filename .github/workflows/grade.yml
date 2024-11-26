@@ -26,6 +26,10 @@ jobs:
 
     - name: Run Docker Compose
       run: docker compose up -d
+    
+    - name: Start Flask App
+      run: |
+        nohup python3 app.py &
       
     - name: Test
       env: # Or as an environment variable
@@ -34,4 +38,4 @@ jobs:
       uses: cs272-0304-f23/action-go-grade@v0.3.4
       if: always()
       with:
-        rubricUrl: 'https://raw.githubusercontent.com/cs272-f24/lab07-jetpham/refs/heads/dev/.github/workflows/lab07.json'
+        rubricUrl: 'https://raw.githubusercontent.com/cs272-f24/project06-jetpham/refs/heads/dev/.github/workflows/proj06.json'
